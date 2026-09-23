@@ -1,0 +1,12 @@
+node_modules
+.next
+.env.local
+npm-debug.log*
+tsconfig.tsbuildinfo
+
+# Arquivos avulsos (prints, imagens de teste) não usados pelo app
+Captura de tela*.png
+Image*.jpg
+Image*.png
+Image (1).png
+R__1_-removebg-preview.png
