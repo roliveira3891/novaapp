@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * Migra os dados do MySQL atual para o Postgres novo (servidor 201).
+ * Migra os dados do MySQL atual para o Postgres novo.
  *
  * Uso:
  *   1) Pare o app (pm2 stop novaapp) para não entrar dado novo no MySQL
  *      enquanto a migração roda.
  *   2) Rode com as credenciais de origem (MySQL) e destino (Postgres):
  *
- *      DB_HOST=SEU_IP_AQUI DB_PORT=3306 DB_USER=ne DB_PASSWORD=*** DB_NAME=nova \
- *      PG_HOST=SEU_IP_AQUI PG_PORT=5432 PG_USER=iluminar_user PG_PASSWORD=*** PG_NAME=novaapp \
+ *      DB_HOST=SEU_HOST DB_PORT=3306 DB_USER=*** DB_PASSWORD=*** DB_NAME=*** \
+ *      PG_HOST=SEU_HOST PG_PORT=5432 PG_USER=*** PG_PASSWORD=*** PG_NAME=novaapp \
  *      node scripts/migrate-mysql-to-postgres.js
  *
  *      (as variáveis DB_* já existem no seu .env.local; as PG_* são novas,

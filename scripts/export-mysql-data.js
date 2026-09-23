@@ -6,8 +6,8 @@
  * Uso (aqui, onde há acesso ao MySQL):
  *   node scripts/export-mysql-data.js > db/data-export.sql
  *
- * Depois, no servidor do Postgres (201):
- *   psql "host=SEU_IP_AQUI dbname=novaapp user=iluminar_user" -f db/data-export.sql
+ * Depois, no servidor do Postgres:
+ *   psql "host=SEU_HOST dbname=novaapp user=SEU_USER" -f db/data-export.sql
  *
  * O arquivo gerado:
  *   - roda o schema.postgres.sql primeiro (CREATE TABLE IF NOT EXISTS, seguro repetir);
