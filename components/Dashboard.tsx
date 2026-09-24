@@ -14,6 +14,7 @@ import HistoryTable from "./HistoryTable";
 import CadastrosModal from "./CadastrosModal";
 import ConclusionModal, { type ConclusionChoice } from "./ConclusionModal";
 import ProfileModal from "./ProfileModal";
+import UsuariosModal from "./UsuariosModal";
 
 const COLUMNS: {
   key: ActivityStatus;
@@ -67,6 +68,7 @@ export default function Dashboard({ user: initialUser }: { user: User }) {
   const [armariosList, setArmariosList] = useState<Armario[]>([]);
   const [tiposAtividadeList, setTiposAtividadeList] = useState<TipoAtividade[]>([]);
   const [cadastrosOpen, setCadastrosOpen] = useState(false);
+  const [usuariosOpen, setUsuariosOpen] = useState(false);
   const [concludingActivity, setConcludingActivity] = useState<Activity | null>(null);
   const [revertStatus, setRevertStatus] = useState<ActivityStatus | null>(null);
   const [clockOffsetMs, setClockOffsetMs] = useState(0);
@@ -273,6 +275,7 @@ export default function Dashboard({ user: initialUser }: { user: User }) {
       <Header
         user={user}
         onOpenCadastros={() => setCadastrosOpen(true)}
+        onOpenUsuarios={() => setUsuariosOpen(true)}
         onOpenProfile={() => setProfileOpen(true)}
       />
       <main className="max-w-[1600px] mx-auto px-6 py-5 space-y-4">
@@ -385,11 +388,13 @@ export default function Dashboard({ user: initialUser }: { user: User }) {
         />
       )}
 
+      {usuariosOpen && user.isAdmin && <UsuariosModal onClose={() => setUsuariosOpen(false)} />}
+
       {profileOpen && (
         <ProfileModal
           user={user}
           onClose={() => setProfileOpen(false)}
-          onUpdated={(u) => setUser(u)}
+          onUpdated={(u) => setUser((prev) => ({ ...u, isAdmin: prev.isAdmin }))}
         />
       )}
     </div>

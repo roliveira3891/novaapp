@@ -61,4 +61,5 @@ export interface User {
   nome: string;
   regional: string;
   avatar: string;
+  isAdmin?: boolean;
 }

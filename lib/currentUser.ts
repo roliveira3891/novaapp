@@ -3,6 +3,7 @@ import { ensureSchema, getPool } from "./db";
 import type { RowDataPacket } from "./db";
 import { SESSION_COOKIE, verifySessionToken } from "./session";
 import type { User } from "./types";
+import { isAdminMatricula } from "./admin";
 
 export async function getCurrentUser(): Promise<User | null> {
   const token = cookies().get(SESSION_COOKIE)?.value;
@@ -16,5 +17,6 @@ export async function getCurrentUser(): Promise<User | null> {
     "SELECT id, matricula, nome, regional, avatar FROM usuarios WHERE id = ?",
     [session.id]
   );
-  return (rows[0] as User) || null;
+  const row = rows[0] as User | undefined;
+  return row ? { ...row, isAdmin: isAdminMatricula(row.matricula) } : null;
 }

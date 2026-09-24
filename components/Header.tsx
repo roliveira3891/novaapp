@@ -8,15 +8,18 @@ import Avatar from "./Avatar";
 export default function Header({
   user,
   onOpenCadastros,
+  onOpenUsuarios,
   onOpenProfile,
 }: {
   user: User;
   onOpenCadastros: () => void;
+  onOpenUsuarios: () => void;
   onOpenProfile: () => void;
 }) {
   const router = useRouter();
   const [now, setNow] = useState(() => new Date());
   const [menuOpen, setMenuOpen] = useState(false);
+  const [gearOpen, setGearOpen] = useState(false);
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -61,13 +64,42 @@ export default function Header({
             <div className="text-white/70">{timeStr}</div>
           </div>
         </div>
-        <button
-          onClick={onOpenCadastros}
-          title="Cadastros de técnicos e armários"
-          className="hover:opacity-80 transition-opacity"
-        >
-          <GearIcon />
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setGearOpen((v) => !v)}
+            title="Configurações"
+            className="hover:opacity-80 transition-opacity"
+          >
+            <GearIcon />
+          </button>
+          {gearOpen && (
+            <div
+              className="absolute right-0 top-9 z-20 bg-white text-gray-700 rounded-xl shadow-lg border border-gray-100 w-64 py-2 text-sm"
+              onMouseLeave={() => setGearOpen(false)}
+            >
+              <button
+                onClick={() => {
+                  setGearOpen(false);
+                  onOpenCadastros();
+                }}
+                className="w-full text-left px-3.5 py-2 hover:bg-gray-50"
+              >
+                Cadastro de técnicos, armários e atividades
+              </button>
+              {user.isAdmin && (
+                <button
+                  onClick={() => {
+                    setGearOpen(false);
+                    onOpenUsuarios();
+                  }}
+                  className="w-full text-left px-3.5 py-2 hover:bg-gray-50"
+                >
+                  Relação de usuários
+                </button>
+              )}
+            </div>
+          )}
+        </div>
         <div className="relative">
           <BellIcon />
           <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-[#5B2A86]" />
