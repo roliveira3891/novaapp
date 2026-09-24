@@ -100,7 +100,7 @@ export function FiltersBar({
         <input
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
-          placeholder="Buscar por nº da atividade..."
+          placeholder="Buscar por nº, atividade, armário ou técnico..."
           className="w-full outline-none text-sm placeholder:text-gray-400"
         />
       </div>

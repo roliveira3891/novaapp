@@ -137,7 +137,18 @@ export default function Dashboard({ user: initialUser }: { user: User }) {
       if (search.trim()) {
         const s = search.trim().toLowerCase();
         const numero = formatActivityNumber(a.id, a.sigla).toLowerCase();
-        if (!numero.includes(s) && !String(a.id).includes(s)) return false;
+        const haystack = [
+          numero,
+          String(a.id),
+          a.atividade,
+          a.nome_armario,
+          a.nome_tecnico,
+          a.matricula_tecnico,
+          a.numero_evento,
+        ]
+          .join("\n")
+          .toLowerCase();
+        if (!haystack.includes(s)) return false;
       }
       return true;
     });

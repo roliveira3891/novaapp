@@ -41,6 +41,16 @@ export async function PATCH(
     }
   }
 
+  // Trocou o técnico: acompanha a matrícula do técnico cadastrado.
+  if (typeof body.nome_tecnico === "string") {
+    const [tec] = await pool.query<RowDataPacket[]>(
+      `SELECT matricula FROM tecnicos WHERE regional = ? AND nome = ? LIMIT 1`,
+      [user.regional, body.nome_tecnico]
+    );
+    fields.push("matricula_tecnico = ?");
+    values.push((tec[0]?.matricula as string) || "");
+  }
+
   // Mudança de status (drag & drop no kanban)
   if (typeof body.status === "string" && body.status !== current.status) {
     const newStatus = body.status as string;

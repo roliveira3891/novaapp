@@ -144,6 +144,18 @@ async function backfillSiglas(pool: DbPool) {
   }
 }
 
+async function backfillMatriculaTecnico(pool: DbPool) {
+  // Atividades criadas antes da matrícula existir: herda do técnico cadastrado com o mesmo nome.
+  await pool.query(
+    `UPDATE atividades SET matricula_tecnico = COALESCE((
+       SELECT t.matricula FROM tecnicos t
+       WHERE t.nome = atividades.nome_tecnico AND t.regional = atividades.regional AND t.matricula <> ''
+       LIMIT 1
+     ), '')
+     WHERE matricula_tecnico = '' AND nome_tecnico <> ''`
+  );
+}
+
 async function createSchemaMysql(pool: DbPool) {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS atividades (
@@ -220,6 +232,10 @@ async function createSchemaMysql(pool: DbPool) {
   await backfillSiglas(pool);
 
   await safeAlter(pool, `ALTER TABLE tipos_atividade ADD UNIQUE KEY uniq_tipo_atividade_sigla (sigla, regional);`);
+
+  await pool.query(`ALTER TABLE tecnicos ADD COLUMN IF NOT EXISTS matricula VARCHAR(30) NOT NULL DEFAULT '';`);
+  await pool.query(`ALTER TABLE atividades ADD COLUMN IF NOT EXISTS matricula_tecnico VARCHAR(30) NOT NULL DEFAULT '';`);
+  await backfillMatriculaTecnico(pool);
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS usuarios (
@@ -311,6 +327,10 @@ async function createSchemaPostgres(pool: DbPool) {
     pool,
     `ALTER TABLE tipos_atividade ADD CONSTRAINT uniq_tipo_atividade_sigla UNIQUE (sigla, regional);`
   );
+
+  await pool.query(`ALTER TABLE tecnicos ADD COLUMN IF NOT EXISTS matricula VARCHAR(30) NOT NULL DEFAULT '';`);
+  await pool.query(`ALTER TABLE atividades ADD COLUMN IF NOT EXISTS matricula_tecnico VARCHAR(30) NOT NULL DEFAULT '';`);
+  await backfillMatriculaTecnico(pool);
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS usuarios (

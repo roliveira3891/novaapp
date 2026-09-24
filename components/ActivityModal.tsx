@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Activity, ActivityInput, Tecnico, Armario, TipoAtividade } from "@/lib/types";
 import { formatActivityNumber } from "@/lib/format";
+import ComboSelect from "./ComboSelect";
 
 export default function ActivityModal({
   activity,
@@ -62,16 +63,14 @@ export default function ActivityModal({
         </div>
         <form onSubmit={handleSubmit} className="space-y-3">
           <Field label="Nome do técnico">
-            <select required value={form.nome_tecnico} onChange={set("nome_tecnico")} className="input">
-              <option value="" disabled>
-                {tecnicos.length ? "Selecione o técnico" : "Nenhum técnico cadastrado"}
-              </option>
-              {tecnicos.map((t) => (
-                <option key={t.id} value={t.nome}>
-                  {t.nome}
-                </option>
-              ))}
-            </select>
+            <ComboSelect
+              required
+              value={form.nome_tecnico}
+              onChange={(v) => setForm((f) => ({ ...f, nome_tecnico: v }))}
+              options={tecnicos.map((t) => ({ value: t.nome, label: t.matricula ? `${t.nome} (${t.matricula})` : t.nome }))}
+              placeholder={tecnicos.length ? "Selecione o técnico" : "Nenhum técnico cadastrado"}
+              className="input"
+            />
           </Field>
           <Field label="Número do evento">
             <input
@@ -82,28 +81,24 @@ export default function ActivityModal({
             />
           </Field>
           <Field label="Atividade">
-            <select required value={form.atividade} onChange={set("atividade")} className="input">
-              <option value="" disabled>
-                {tiposAtividade.length ? "Selecione a atividade" : "Nenhuma atividade cadastrada"}
-              </option>
-              {tiposAtividade.map((t) => (
-                <option key={t.id} value={t.nome}>
-                  {t.nome}
-                </option>
-              ))}
-            </select>
+            <ComboSelect
+              required
+              value={form.atividade}
+              onChange={(v) => setForm((f) => ({ ...f, atividade: v }))}
+              options={tiposAtividade.map((t) => ({ value: t.nome, label: t.nome }))}
+              placeholder={tiposAtividade.length ? "Selecione a atividade" : "Nenhuma atividade cadastrada"}
+              className="input"
+            />
           </Field>
           <Field label="Nome do armário">
-            <select required value={form.nome_armario} onChange={set("nome_armario")} className="input">
-              <option value="" disabled>
-                {armarios.length ? "Selecione o armário" : "Nenhum armário cadastrado"}
-              </option>
-              {armarios.map((a) => (
-                <option key={a.id} value={a.nome}>
-                  {a.nome}
-                </option>
-              ))}
-            </select>
+            <ComboSelect
+              required
+              value={form.nome_armario}
+              onChange={(v) => setForm((f) => ({ ...f, nome_armario: v }))}
+              options={armarios.map((a) => ({ value: a.nome, label: a.nome }))}
+              placeholder={armarios.length ? "Selecione o armário" : "Nenhum armário cadastrado"}
+              className="input"
+            />
           </Field>
           <Field label="Descrição">
             <textarea

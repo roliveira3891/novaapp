@@ -1,3 +1,3 @@
 import { cadastroItemHandlers } from "@/lib/cadastro";
 
-export const { DELETE } = cadastroItemHandlers("tipos_atividade");
+export const { DELETE, PATCH } = cadastroItemHandlers("tipos_atividade");

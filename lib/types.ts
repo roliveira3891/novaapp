@@ -10,6 +10,7 @@ export interface Activity {
   nome_armario: string;
   descricao: string;
   nome_tecnico: string;
+  matricula_tecnico: string;
   status: ActivityStatus;
   conclusao: ConclusionType;
   started_at: string | null;
@@ -28,11 +29,16 @@ export interface ActivityInput {
   nome_armario: string;
   descricao: string;
   nome_tecnico: string;
+  /** Só no mobile: status escolhido no cadastro (sem kanban). */
+  status?: ActivityStatus;
+  conclusao?: ConclusionType;
+  motivo?: string;
 }
 
 export interface Tecnico {
   id: number;
   nome: string;
+  matricula: string;
   regional: string;
 }
 

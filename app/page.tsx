@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import Dashboard from "@/components/Dashboard";
+import ResponsiveApp from "@/components/ResponsiveApp";
 import { getCurrentUser } from "@/lib/currentUser";
 
 export default async function Home() {
@@ -7,5 +7,5 @@ export default async function Home() {
   if (!user) {
     redirect("/login");
   }
-  return <Dashboard user={user} />;
+  return <ResponsiveApp user={user} />;
 }
