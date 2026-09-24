@@ -72,12 +72,12 @@ export default function ActivityCard({
 
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0 space-y-1 text-xs">
-            <Row label="Nome do técnico" value={activity.nome_tecnico || "—"} />
-            <Row label="Data de criação" value={formatDateTime(activity.data_criacao)} />
-            <Row label="Nome do armário" value={activity.nome_armario} />
-            <Row label="Descrição da atividade" value={activity.atividade} />
+            <Row label="Técnico" value={activity.nome_tecnico || "—"} />
+            <Row label="Criação" value={formatDateTime(activity.data_criacao)} />
+            <Row label="Armário" value={activity.nome_armario} />
+            <Row label="Descrição" value={activity.atividade} />
             <Row
-              label="Tempo em execução"
+              label="Tempo"
               value={
                 <Timer
                   startedAt={activity.started_at}
