@@ -183,20 +183,22 @@ function CadastroList({
   return (
     <div className="min-w-0">
       <form onSubmit={handleAdd} className="flex flex-col gap-2 mb-3">
-        <input
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder={placeholder}
-          className="w-full min-w-0 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-vivo-purple"
-        />
-        {withMatricula && (
+        <div className="flex gap-2">
+          {withMatricula && (
+            <input
+              value={matricula}
+              onChange={(e) => setMatricula(e.target.value)}
+              placeholder="Matrícula"
+              className="w-28 shrink-0 min-w-0 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-vivo-purple"
+            />
+          )}
           <input
-            value={matricula}
-            onChange={(e) => setMatricula(e.target.value)}
-            placeholder="Matrícula"
-            className="w-full min-w-0 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-vivo-purple"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            placeholder={placeholder}
+            className="flex-1 min-w-0 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-vivo-purple"
           />
-        )}
+        </div>
         <button
           type="submit"
           disabled={saving}
@@ -216,20 +218,22 @@ function CadastroList({
         {visibleItems.map((item) =>
           editingId === item.id ? (
             <li key={item.id} className="flex flex-col gap-2 px-3 py-2 bg-violet-50/40">
-              <input
-                value={editNome}
-                onChange={(e) => setEditNome(e.target.value)}
-                autoFocus
-                className="w-full min-w-0 border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-vivo-purple bg-white"
-              />
-              {withMatricula && (
+              <div className="flex gap-2">
+                {withMatricula && (
+                  <input
+                    value={editMatricula}
+                    onChange={(e) => setEditMatricula(e.target.value)}
+                    placeholder="Matrícula"
+                    className="w-24 shrink-0 min-w-0 border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-vivo-purple bg-white"
+                  />
+                )}
                 <input
-                  value={editMatricula}
-                  onChange={(e) => setEditMatricula(e.target.value)}
-                  placeholder="Matrícula"
-                  className="w-full min-w-0 border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-vivo-purple bg-white"
+                  value={editNome}
+                  onChange={(e) => setEditNome(e.target.value)}
+                  autoFocus
+                  className="flex-1 min-w-0 border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-vivo-purple bg-white"
                 />
-              )}
+              </div>
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => {
