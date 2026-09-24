@@ -7,6 +7,7 @@ import { formatActivityNumber, formatDateTime } from "@/lib/format";
 import Avatar from "./Avatar";
 import Timer from "./Timer";
 import ComboSelect from "./ComboSelect";
+import ActivityDetailsModal from "./ActivityDetailsModal";
 import ConclusionModal, { type ConclusionChoice } from "./ConclusionModal";
 
 type Tab = "andamento" | "historico";
@@ -36,6 +37,8 @@ export default function MobileApp({ user }: { user: User }) {
   const [armarios, setArmarios] = useState<Armario[]>([]);
   const [tipos, setTipos] = useState<TipoAtividade[]>([]);
   const [clockOffsetMs, setClockOffsetMs] = useState(0);
+  const [viewingId, setViewingId] = useState<number | null>(null);
+  const [installEvent, setInstallEvent] = useState<any>(null);
 
   const load = async () => {
     const res = await fetch("/api/activities?mine=1");
@@ -58,6 +61,30 @@ export default function MobileApp({ user }: { user: User }) {
     const interval = setInterval(load, 15000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    // Chrome/Android: guarda o evento para oferecer o botão "Instalar".
+    const onPrompt = (e: Event) => {
+      e.preventDefault();
+      setInstallEvent(e);
+    };
+    const onInstalled = () => setInstallEvent(null);
+    window.addEventListener("beforeinstallprompt", onPrompt);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onPrompt);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installEvent) return;
+    installEvent.prompt();
+    await installEvent.userChoice.catch(() => {});
+    setInstallEvent(null);
+  };
+
+  const viewing = activities.find((a) => a.id === viewingId) || null;
 
   const patch = async (id: number, body: Record<string, unknown>) => {
     const res = await fetch(`/api/activities/${id}`, {
@@ -124,6 +151,11 @@ export default function MobileApp({ user }: { user: User }) {
             Mat. {user.matricula} &middot; {user.regional}
           </p>
         </div>
+        {installEvent && (
+          <button onClick={handleInstall} className="text-xs bg-white text-vivo-purple font-semibold rounded-lg px-3 py-1.5">
+            Instalar
+          </button>
+        )}
         <button onClick={handleLogout} className="text-xs bg-white/15 rounded-lg px-3 py-1.5">
           Sair
         </button>
@@ -152,6 +184,7 @@ export default function MobileApp({ user }: { user: User }) {
               activity={a}
               clockOffsetMs={clockOffsetMs}
               onStatusChange={(s) => handleStatusChange(a, s)}
+              onOpen={() => setViewingId(a.id)}
             />
           ))
         )}
@@ -172,6 +205,10 @@ export default function MobileApp({ user }: { user: User }) {
           onClose={() => setCreating(false)}
           onSave={handleCreate}
         />
+      )}
+
+      {viewing && (
+        <ActivityDetailsModal activity={viewing} clockOffsetMs={clockOffsetMs} onClose={() => setViewingId(null)} />
       )}
 
       {concluding && (
@@ -206,14 +243,16 @@ function ServiceCard({
   activity: a,
   clockOffsetMs,
   onStatusChange,
+  onOpen,
 }: {
   activity: Activity;
   clockOffsetMs: number;
   onStatusChange: (s: ActivityStatus) => void;
+  onOpen: () => void;
 }) {
   const parcial = a.status === "concluida" && a.conclusao === "parcial";
   return (
-    <div className="bg-white rounded-xl shadow-card p-4 space-y-2">
+    <div onClick={onOpen} className="bg-white rounded-xl shadow-card p-4 space-y-2 active:bg-gray-50">
       <div className="flex items-center justify-between gap-2">
         <span className="text-xs font-bold text-vivo-purple">{formatActivityNumber(a.id, a.sigla)}</span>
         <span
@@ -229,7 +268,7 @@ function ServiceCard({
         Armário: {a.nome_armario}
         {a.numero_evento ? ` · Evento: ${a.numero_evento}` : ""}
       </p>
-      {a.descricao && <p className="text-xs text-gray-600 whitespace-pre-wrap">{a.descricao}</p>}
+      {a.descricao && <p className="text-xs text-gray-600 whitespace-pre-wrap line-clamp-2">{a.descricao}</p>}
       {a.motivo && <p className="text-xs text-gray-500 italic">Motivo: {a.motivo}</p>}
       <div className="flex items-center justify-between text-[11px] text-gray-400">
         <span>{formatDateTime(a.data_criacao)}</span>
@@ -243,9 +282,11 @@ function ServiceCard({
           />
         </span>
       </div>
+      <p className="text-[11px] text-vivo-purple font-medium">Toque para ver os detalhes ›</p>
       {a.status !== "excluida" && (
         <select
           value={a.status}
+          onClick={(e) => e.stopPropagation()}
           onChange={(e) => onStatusChange(e.target.value as ActivityStatus)}
           className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white"
           aria-label="Atualizar status"
