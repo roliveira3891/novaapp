@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPool } from "@/lib/db";
 import { getCurrentUser } from "@/lib/currentUser";
+import { clusterExists, normalizeCluster } from "@/lib/clusters";
+import { REGIONAIS } from "@/lib/regionais";
 
 export async function PATCH(req: NextRequest) {
   const user = await getCurrentUser();
@@ -16,9 +18,23 @@ export async function PATCH(req: NextRequest) {
     fields.push("nome = ?");
     values.push(body.nome.trim());
   }
+  let regional = user.regional;
   if (typeof body.regional === "string" && body.regional.trim()) {
+    regional = body.regional.trim();
+    if (!(REGIONAIS as readonly string[]).includes(regional)) {
+      return NextResponse.json({ error: "Regional inválida." }, { status: 400 });
+    }
     fields.push("regional = ?");
-    values.push(body.regional.trim());
+    values.push(regional);
+  }
+  // O cluster pertence a uma regional: trocando de regional sem escolher outro cluster, ele é zerado.
+  if (typeof body.cluster === "string" || regional !== user.regional) {
+    const cluster = typeof body.cluster === "string" ? normalizeCluster(body.cluster) : "";
+    if (!(await clusterExists(regional, cluster))) {
+      return NextResponse.json({ error: "Cluster não encontrado nesta regional." }, { status: 400 });
+    }
+    fields.push("cluster = ?");
+    values.push(cluster);
   }
   if (typeof body.avatar === "string" && body.avatar.trim()) {
     fields.push("avatar = ?");

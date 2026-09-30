@@ -156,6 +156,13 @@ async function backfillMatriculaTecnico(pool: DbPool) {
   );
 }
 
+async function addClusterColumns(pool: DbPool) {
+  // Cluster: subdivisão da regional. '' = registro ainda sem cluster (legado, a ser vinculado pelos usuários).
+  for (const table of ["usuarios", "atividades", "tecnicos", "armarios", "tipos_atividade"]) {
+    await pool.query(`ALTER TABLE ${table} ADD COLUMN IF NOT EXISTS cluster VARCHAR(80) NOT NULL DEFAULT ''`);
+  }
+}
+
 async function createSchemaMysql(pool: DbPool) {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS atividades (
@@ -248,6 +255,16 @@ async function createSchemaMysql(pool: DbPool) {
       criado_em DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS clusters (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      nome VARCHAR(80) NOT NULL,
+      regional VARCHAR(60) NOT NULL,
+      UNIQUE KEY uniq_cluster_regional (nome, regional)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `);
+  await addClusterColumns(pool);
 }
 
 async function createSchemaPostgres(pool: DbPool) {
@@ -343,6 +360,16 @@ async function createSchemaPostgres(pool: DbPool) {
       criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
   `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS clusters (
+      id SERIAL PRIMARY KEY,
+      nome VARCHAR(80) NOT NULL,
+      regional VARCHAR(60) NOT NULL,
+      CONSTRAINT uniq_cluster_regional UNIQUE (nome, regional)
+    );
+  `);
+  await addClusterColumns(pool);
 }
 
 async function createSchema() {

@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import AuthShell from "./AuthShell";
 import AvatarPicker from "./AvatarPicker";
 import { REGIONAIS } from "@/lib/regionais";
+import ClusterSelect from "./ClusterSelect";
 
 export default function RegisterForm() {
   const router = useRouter();
   const [matricula, setMatricula] = useState("");
   const [nome, setNome] = useState("");
   const [regional, setRegional] = useState("");
+  const [cluster, setCluster] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
   const [avatar, setAvatar] = useState("a1");
@@ -31,7 +33,7 @@ export default function RegisterForm() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ matricula, nome, regional, senha, avatar }),
+        body: JSON.stringify({ matricula, nome, regional, cluster, senha, avatar }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -75,7 +77,10 @@ export default function RegisterForm() {
           <select
             required
             value={regional}
-            onChange={(e) => setRegional(e.target.value)}
+            onChange={(e) => {
+              setRegional(e.target.value);
+              setCluster("");
+            }}
             className="input"
           >
             <option value="" disabled>
@@ -88,6 +93,16 @@ export default function RegisterForm() {
             ))}
           </select>
         </Field>
+        {regional && (
+          <Field label="Cluster (opcional)">
+            <ClusterSelect
+              regional={regional}
+              value={cluster}
+              onChange={setCluster}
+              className="input"
+            />
+          </Field>
+        )}
         <div className="grid grid-cols-2 gap-3">
           <Field label="Senha">
             <input

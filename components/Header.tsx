@@ -10,11 +10,15 @@ export default function Header({
   onOpenCadastros,
   onOpenUsuarios,
   onOpenProfile,
+  onOpenCluster,
+  onOpenVincular,
 }: {
   user: User;
   onOpenCadastros: () => void;
   onOpenUsuarios: () => void;
   onOpenProfile: () => void;
+  onOpenCluster: () => void;
+  onOpenVincular: () => void;
 }) {
   const router = useRouter();
   const [now, setNow] = useState(() => new Date());
@@ -50,13 +54,19 @@ export default function Header({
       </div>
 
       <div className="flex items-center gap-6 text-sm">
-        <div className="flex items-center gap-2">
+        <button
+          onClick={onOpenCluster}
+          title="Alterar cluster"
+          className="flex items-center gap-2 hover:opacity-90 text-left"
+        >
           <PinIcon />
           <div className="leading-tight text-xs">
-            <div className="font-medium">Regional</div>
-            <div className="text-white/70">{user.regional}</div>
+            <div className="font-medium">{user.regional}</div>
+            <div className={user.cluster ? "text-white/70" : "text-amber-300"}>
+              {user.cluster ? `Cluster ${user.cluster}` : "Escolher cluster"}
+            </div>
           </div>
-        </div>
+        </button>
         <div className="flex items-center gap-2">
           <CalendarIcon />
           <div className="leading-tight text-xs">
@@ -85,6 +95,15 @@ export default function Header({
                 className="w-full text-left px-3.5 py-2 hover:bg-gray-50"
               >
                 Cadastro de técnicos, armários e atividades
+              </button>
+              <button
+                onClick={() => {
+                  setGearOpen(false);
+                  onOpenVincular();
+                }}
+                className="w-full text-left px-3.5 py-2 hover:bg-gray-50"
+              >
+                Vincular registros sem cluster
               </button>
               {user.isAdmin && (
                 <button
@@ -124,6 +143,7 @@ export default function Header({
                   <p className="font-semibold truncate">{user.nome}</p>
                   <p className="text-xs text-gray-400">
                     Mat. {user.matricula} &middot; {user.regional}
+                    {user.cluster && <> &middot; {user.cluster}</>}
                   </p>
                 </div>
               </div>

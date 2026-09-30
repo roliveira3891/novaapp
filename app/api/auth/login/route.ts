@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
     matricula: user.matricula,
     nome: user.nome,
     regional: user.regional,
+    cluster: user.cluster,
     avatar: user.avatar,
   });
   res.cookies.set(SESSION_COOKIE, token, {

@@ -5,6 +5,8 @@ import { DragDropContext, type DropResult } from "@hello-pangea/dnd";
 import type { Activity, ActivityInput, ActivityStatus, Tecnico, Armario, TipoAtividade, User } from "@/lib/types";
 import { formatActivityNumber } from "@/lib/format";
 import Header from "./Header";
+import ClusterModal from "./ClusterModal";
+import VincularModal from "./VincularModal";
 import { StatsBar } from "./StatsBar";
 import { FiltersBar } from "./FiltersBar";
 import KanbanColumn from "./KanbanColumn";
@@ -53,6 +55,9 @@ const COLUMNS: {
 export default function Dashboard({ user: initialUser }: { user: User }) {
   const [user, setUser] = useState<User>(initialUser);
   const [profileOpen, setProfileOpen] = useState(false);
+  // Sem cluster definido, pede a escolha logo ao entrar.
+  const [clusterOpen, setClusterOpen] = useState(!initialUser.cluster);
+  const [vincularOpen, setVincularOpen] = useState(false);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -94,6 +99,17 @@ export default function Dashboard({ user: initialUser }: { user: User }) {
     setTecnicosList(await tRes.json());
     setArmariosList(await aRes.json());
     setTiposAtividadeList(await taRes.json());
+  };
+
+  const reloadAll = () => {
+    load();
+    loadCadastros();
+  };
+
+  // Regional/cluster mudam o que o usuário enxerga: recarrega quadro e cadastros.
+  const handleUserUpdated = (u: User) => {
+    setUser((prev) => ({ ...u, isAdmin: prev.isAdmin }));
+    reloadAll();
   };
 
   useEffect(() => {
@@ -277,6 +293,8 @@ export default function Dashboard({ user: initialUser }: { user: User }) {
         onOpenCadastros={() => setCadastrosOpen(true)}
         onOpenUsuarios={() => setUsuariosOpen(true)}
         onOpenProfile={() => setProfileOpen(true)}
+        onOpenCluster={() => setClusterOpen(true)}
+        onOpenVincular={() => (user.cluster ? setVincularOpen(true) : setClusterOpen(true))}
       />
       <main className="max-w-[1600px] mx-auto px-6 py-5 space-y-4">
         <StatsBar total={total} execucao={emExecucao} concluidas={concluidas} canceladas={canceladas} />
@@ -394,9 +412,20 @@ export default function Dashboard({ user: initialUser }: { user: User }) {
         <ProfileModal
           user={user}
           onClose={() => setProfileOpen(false)}
-          onUpdated={(u) => setUser((prev) => ({ ...u, isAdmin: prev.isAdmin }))}
+          onUpdated={handleUserUpdated}
         />
       )}
+
+      {clusterOpen && (
+        <ClusterModal
+          user={user}
+          onClose={() => setClusterOpen(false)}
+          onUpdated={handleUserUpdated}
+          onChanged={reloadAll}
+        />
+      )}
+
+      {vincularOpen && <VincularModal user={user} onClose={() => setVincularOpen(false)} onChanged={reloadAll} />}
     </div>
   );
 }

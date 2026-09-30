@@ -26,7 +26,7 @@ export async function PATCH(
   const pool = getPool();
 
   const current = await getActivity(id);
-  if (!current || current.regional !== user.regional) {
+  if (!current || current.regional !== user.regional || current.cluster !== user.cluster) {
     return NextResponse.json({ error: "Atividade não encontrada." }, { status: 404 });
   }
 
@@ -117,7 +117,7 @@ export async function DELETE(
   const pool = getPool();
 
   const current = await getActivity(id);
-  if (!current || current.regional !== user.regional) {
+  if (!current || current.regional !== user.regional || current.cluster !== user.cluster) {
     return NextResponse.json({ error: "Atividade não encontrada." }, { status: 404 });
   }
 

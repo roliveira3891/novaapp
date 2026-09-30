@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { User } from "@/lib/types";
 import AvatarPicker from "./AvatarPicker";
 import { REGIONAIS } from "@/lib/regionais";
+import ClusterSelect from "./ClusterSelect";
 
 export default function ProfileModal({
   user,
@@ -17,6 +18,7 @@ export default function ProfileModal({
   const [avatar, setAvatar] = useState(user.avatar);
   const [nome, setNome] = useState(user.nome);
   const [regional, setRegional] = useState(user.regional);
+  const [cluster, setCluster] = useState(user.cluster);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
@@ -25,7 +27,7 @@ export default function ProfileModal({
       const res = await fetch("/api/auth/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ avatar, nome, regional }),
+        body: JSON.stringify({ avatar, nome, regional, cluster }),
       });
       const updated = await res.json();
       onUpdated(updated);
@@ -71,7 +73,10 @@ export default function ProfileModal({
             <span className="text-xs text-gray-500 mb-1 block">Regional</span>
             <select
               value={regional}
-              onChange={(e) => setRegional(e.target.value)}
+              onChange={(e) => {
+                setRegional(e.target.value);
+                setCluster(""); // cluster pertence à regional
+              }}
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-vivo-purple"
             >
               {REGIONAIS.map((r) => (
@@ -80,6 +85,15 @@ export default function ProfileModal({
                 </option>
               ))}
             </select>
+          </label>
+          <label className="block">
+            <span className="text-xs text-gray-500 mb-1 block">Cluster</span>
+            <ClusterSelect
+              regional={regional}
+              value={cluster}
+              onChange={setCluster}
+              allowCreate={regional === user.regional}
+            />
           </label>
         </div>
 

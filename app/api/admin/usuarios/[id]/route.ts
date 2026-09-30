@@ -3,6 +3,7 @@ import { ensureSchema, getPool } from "@/lib/db";
 import type { RowDataPacket } from "@/lib/db";
 import { getCurrentUser } from "@/lib/currentUser";
 import { hashPassword } from "@/lib/password";
+import { clusterExists, normalizeCluster } from "@/lib/clusters";
 import { REGIONAIS } from "@/lib/regionais";
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
@@ -16,6 +17,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const matricula = (body.matricula || "").trim();
   const nome = (body.nome || "").trim();
   const regional = (body.regional || "").trim();
+  const cluster = normalizeCluster(body.cluster);
   const senha: string = body.senha || "";
 
   if (!matricula || !nome || !regional) {
@@ -23,6 +25,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
   if (!(REGIONAIS as readonly string[]).includes(regional)) {
     return NextResponse.json({ error: "Regional inválida." }, { status: 400 });
+  }
+  if (!(await clusterExists(regional, cluster))) {
+    return NextResponse.json({ error: "Cluster não encontrado nesta regional." }, { status: 400 });
   }
   if (senha && senha.length < 4) {
     return NextResponse.json({ error: "A senha deve ter ao menos 4 caracteres." }, { status: 400 });
@@ -40,14 +45,15 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     if (senha) {
       const senha_hash = await hashPassword(senha);
       await pool.query(
-        "UPDATE usuarios SET matricula = ?, nome = ?, regional = ?, senha_hash = ? WHERE id = ?",
-        [matricula, nome, regional, senha_hash, id]
+        "UPDATE usuarios SET matricula = ?, nome = ?, regional = ?, cluster = ?, senha_hash = ? WHERE id = ?",
+        [matricula, nome, regional, cluster, senha_hash, id]
       );
     } else {
-      await pool.query("UPDATE usuarios SET matricula = ?, nome = ?, regional = ? WHERE id = ?", [
+      await pool.query("UPDATE usuarios SET matricula = ?, nome = ?, regional = ?, cluster = ? WHERE id = ?", [
         matricula,
         nome,
         regional,
+        cluster,
         id,
       ]);
     }
@@ -71,7 +77,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 
   const [rows] = await pool.query<RowDataPacket[]>(
-    "SELECT id, matricula, nome, regional, avatar, criado_em FROM usuarios WHERE id = ?",
+    "SELECT id, matricula, nome, regional, cluster, avatar, criado_em FROM usuarios WHERE id = ?",
     [id]
   );
   return NextResponse.json(rows[0]);

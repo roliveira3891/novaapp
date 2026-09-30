@@ -78,3 +78,16 @@ DO $$ BEGIN
   ALTER TABLE tipos_atividade ADD CONSTRAINT uniq_tipo_atividade_sigla UNIQUE (sigla, regional);
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
+
+-- Cluster (ver também migration-cluster.sql)
+CREATE TABLE IF NOT EXISTS clusters (
+  id SERIAL PRIMARY KEY,
+  nome VARCHAR(80) NOT NULL,
+  regional VARCHAR(60) NOT NULL,
+  CONSTRAINT uniq_cluster_regional UNIQUE (nome, regional)
+);
+ALTER TABLE usuarios        ADD COLUMN IF NOT EXISTS cluster VARCHAR(80) NOT NULL DEFAULT '';
+ALTER TABLE atividades      ADD COLUMN IF NOT EXISTS cluster VARCHAR(80) NOT NULL DEFAULT '';
+ALTER TABLE tecnicos        ADD COLUMN IF NOT EXISTS cluster VARCHAR(80) NOT NULL DEFAULT '';
+ALTER TABLE armarios        ADD COLUMN IF NOT EXISTS cluster VARCHAR(80) NOT NULL DEFAULT '';
+ALTER TABLE tipos_atividade ADD COLUMN IF NOT EXISTS cluster VARCHAR(80) NOT NULL DEFAULT '';

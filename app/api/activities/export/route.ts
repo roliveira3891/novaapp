@@ -28,8 +28,8 @@ export async function GET() {
   }
   const pool = getPool();
   const [rows] = await pool.query<RowDataPacket[]>(
-    "SELECT * FROM atividades WHERE regional = ? ORDER BY id DESC",
-    [user.regional]
+    "SELECT * FROM atividades WHERE regional = ? AND cluster = ? ORDER BY id DESC",
+    [user.regional, user.cluster]
   );
 
   const data = rows.map((r) => {

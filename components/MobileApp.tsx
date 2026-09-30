@@ -8,6 +8,7 @@ import Avatar from "./Avatar";
 import Timer from "./Timer";
 import ComboSelect from "./ComboSelect";
 import ActivityDetailsModal from "./ActivityDetailsModal";
+import ClusterModal from "./ClusterModal";
 import ConclusionModal, { type ConclusionChoice } from "./ConclusionModal";
 
 type Tab = "andamento" | "historico";
@@ -27,8 +28,11 @@ const STATUS_BADGE: Record<ActivityStatus, string> = {
   excluida: "bg-gray-100 text-gray-600",
 };
 
-export default function MobileApp({ user }: { user: User }) {
+export default function MobileApp({ user: initialUser }: { user: User }) {
   const router = useRouter();
+  const [user, setUser] = useState<User>(initialUser);
+  // Sem cluster definido, pede a escolha logo ao entrar.
+  const [clusterOpen, setClusterOpen] = useState(!initialUser.cluster);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("andamento");
@@ -51,13 +55,15 @@ export default function MobileApp({ user }: { user: User }) {
     setLoading(false);
   };
 
+  const loadCadastros = async () => {
+    const [aRes, tRes] = await Promise.all([fetch("/api/armarios"), fetch("/api/tipos-atividade")]);
+    if (aRes.ok) setArmarios(await aRes.json());
+    if (tRes.ok) setTipos(await tRes.json());
+  };
+
   useEffect(() => {
     load();
-    (async () => {
-      const [aRes, tRes] = await Promise.all([fetch("/api/armarios"), fetch("/api/tipos-atividade")]);
-      if (aRes.ok) setArmarios(await aRes.json());
-      if (tRes.ok) setTipos(await tRes.json());
-    })();
+    loadCadastros();
     const interval = setInterval(load, 15000);
     return () => clearInterval(interval);
   }, []);
@@ -150,6 +156,12 @@ export default function MobileApp({ user }: { user: User }) {
           <p className="text-[11px] text-white/70 truncate">
             Mat. {user.matricula} &middot; {user.regional}
           </p>
+          <button
+            onClick={() => setClusterOpen(true)}
+            className={`text-[11px] truncate max-w-full underline ${user.cluster ? "text-white/70" : "text-amber-300"}`}
+          >
+            {user.cluster ? `Cluster ${user.cluster}` : "Escolher cluster"}
+          </button>
         </div>
         {installEvent && (
           <button onClick={handleInstall} className="text-xs bg-white text-vivo-purple font-semibold rounded-lg px-3 py-1.5">
@@ -196,6 +208,18 @@ export default function MobileApp({ user }: { user: User }) {
       >
         + Novo serviço
       </button>
+
+      {clusterOpen && (
+        <ClusterModal
+          user={user}
+          onClose={() => setClusterOpen(false)}
+          onUpdated={(u) => setUser((prev) => ({ ...u, isAdmin: prev.isAdmin }))}
+          onChanged={() => {
+            load();
+            loadCadastros();
+          }}
+        />
+      )}
 
       {creating && (
         <NewServiceSheet

@@ -14,7 +14,7 @@ export async function getCurrentUser(): Promise<User | null> {
   await ensureSchema();
   const pool = getPool();
   const [rows] = await pool.query<RowDataPacket[]>(
-    "SELECT id, matricula, nome, regional, avatar FROM usuarios WHERE id = ?",
+    "SELECT id, matricula, nome, regional, cluster, avatar FROM usuarios WHERE id = ?",
     [session.id]
   );
   const row = rows[0] as User | undefined;

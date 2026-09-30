@@ -18,6 +18,7 @@ export interface Activity {
   concluded_at: string | null;
   motivo: string | null;
   regional: string;
+  cluster: string;
   deleted_at: string | null;
   deleted_by: string | null;
   sigla: string;
@@ -40,18 +41,21 @@ export interface Tecnico {
   nome: string;
   matricula: string;
   regional: string;
+  cluster: string;
 }
 
 export interface Armario {
   id: number;
   nome: string;
   regional: string;
+  cluster: string;
 }
 
 export interface TipoAtividade {
   id: number;
   nome: string;
   regional: string;
+  cluster: string;
   sigla: string;
 }
 
@@ -60,6 +64,13 @@ export interface User {
   matricula: string;
   nome: string;
   regional: string;
+  cluster: string;
   avatar: string;
   isAdmin?: boolean;
+}
+
+export interface Cluster {
+  id: number;
+  nome: string;
+  regional: string;
 }

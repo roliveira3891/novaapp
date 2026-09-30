@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import { REGIONAIS } from "@/lib/regionais";
 import Avatar from "./Avatar";
+import ClusterSelect from "./ClusterSelect";
 
 interface UsuarioRow {
   id: number;
   matricula: string;
   nome: string;
   regional: string;
+  cluster: string;
   avatar: string;
 }
 
@@ -17,7 +19,7 @@ export default function UsuariosModal({ onClose }: { onClose: () => void }) {
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [form, setForm] = useState({ matricula: "", nome: "", regional: "", senha: "" });
+  const [form, setForm] = useState({ matricula: "", nome: "", regional: "", cluster: "", senha: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -32,7 +34,7 @@ export default function UsuariosModal({ onClose }: { onClose: () => void }) {
 
   const startEdit = (u: UsuarioRow) => {
     setEditingId(u.id);
-    setForm({ matricula: u.matricula, nome: u.nome, regional: u.regional, senha: "" });
+    setForm({ matricula: u.matricula, nome: u.nome, regional: u.regional, cluster: u.cluster, senha: "" });
     setError("");
     setNotice("");
   };
@@ -77,7 +79,7 @@ export default function UsuariosModal({ onClose }: { onClose: () => void }) {
           </button>
         </div>
         <p className="text-xs text-gray-400 mb-3">
-          Edite matrícula, nome e regional, ou defina uma nova senha (deixe em branco para manter a atual).
+          Edite matrícula, nome, regional e cluster, ou defina uma nova senha (deixe em branco para manter a atual).
         </p>
 
         <input
@@ -117,7 +119,7 @@ export default function UsuariosModal({ onClose }: { onClose: () => void }) {
                     <span className="text-[11px] text-gray-500">Regional</span>
                     <select
                       value={form.regional}
-                      onChange={(e) => setForm((f) => ({ ...f, regional: e.target.value }))}
+                      onChange={(e) => setForm((f) => ({ ...f, regional: e.target.value, cluster: "" }))}
                       className={input}
                     >
                       {REGIONAIS.map((r) => (
@@ -126,6 +128,15 @@ export default function UsuariosModal({ onClose }: { onClose: () => void }) {
                         </option>
                       ))}
                     </select>
+                  </label>
+                  <label className="block">
+                    <span className="text-[11px] text-gray-500">Cluster</span>
+                    <ClusterSelect
+                      regional={form.regional}
+                      value={form.cluster}
+                      onChange={(c) => setForm((f) => ({ ...f, cluster: c }))}
+                      className={input}
+                    />
                   </label>
                   <label className="block">
                     <span className="text-[11px] text-gray-500">Nova senha (opcional)</span>
@@ -162,7 +173,7 @@ export default function UsuariosModal({ onClose }: { onClose: () => void }) {
                 <div className="min-w-0 flex-1 leading-tight">
                   <p className="text-sm font-medium text-gray-700 truncate">{u.nome}</p>
                   <p className="text-xs text-gray-400 truncate">
-                    Mat. {u.matricula} &middot; {u.regional}
+                    Mat. {u.matricula} &middot; {u.regional} &middot; {u.cluster || "sem cluster"}
                   </p>
                 </div>
                 <button

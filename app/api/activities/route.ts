@@ -27,10 +27,11 @@ async function ensureTecnico(pool: DbPool, user: User) {
     return;
   }
   try {
-    await pool.query(`INSERT INTO tecnicos (nome, matricula, regional) VALUES (?, ?, ?)`, [
+    await pool.query(`INSERT INTO tecnicos (nome, matricula, regional, cluster) VALUES (?, ?, ?, ?)`, [
       user.nome,
       user.matricula,
       user.regional,
+      user.cluster,
     ]);
   } catch (err: any) {
     // Já existe outro técnico com esse nome+regional (com outra matrícula): não bloqueia o cadastro.
@@ -49,12 +50,12 @@ export async function GET(req: NextRequest) {
   const mine = req.nextUrl.searchParams.get("mine") === "1";
   const [rows] = mine
     ? await pool.query<RowDataPacket[]>(
-        "SELECT * FROM atividades WHERE regional = ? AND matricula_tecnico = ? ORDER BY id DESC",
-        [user.regional, user.matricula]
+        "SELECT * FROM atividades WHERE regional = ? AND cluster = ? AND matricula_tecnico = ? ORDER BY id DESC",
+        [user.regional, user.cluster, user.matricula]
       )
     : await pool.query<RowDataPacket[]>(
-        "SELECT * FROM atividades WHERE regional = ? ORDER BY id DESC",
-        [user.regional]
+        "SELECT * FROM atividades WHERE regional = ? AND cluster = ? ORDER BY id DESC",
+        [user.regional, user.cluster]
       );
   return NextResponse.json(rows);
 }
@@ -119,8 +120,8 @@ export async function POST(req: NextRequest) {
   }
 
   const [result] = await pool.query(
-    `INSERT INTO atividades (numero_evento, atividade, nome_armario, descricao, nome_tecnico, matricula_tecnico, status, conclusao, motivo, regional, sigla, started_at, concluded_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ${initialStatus === "execucao" ? "NOW()" : "NULL"}, ${
+    `INSERT INTO atividades (numero_evento, atividade, nome_armario, descricao, nome_tecnico, matricula_tecnico, status, conclusao, motivo, regional, cluster, sigla, started_at, concluded_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ${initialStatus === "execucao" ? "NOW()" : "NULL"}, ${
        initialStatus === "concluida" || initialStatus === "cancelada" ? "NOW()" : "NULL"
      })`,
     [
@@ -134,6 +135,7 @@ export async function POST(req: NextRequest) {
       conclusao,
       motivo,
       user.regional,
+      user.cluster,
       sigla,
     ]
   );

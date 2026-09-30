@@ -10,7 +10,7 @@ export async function GET() {
   if (!user.isAdmin) return NextResponse.json({ error: "Acesso negado." }, { status: 403 });
 
   const [rows] = await getPool().query<RowDataPacket[]>(
-    "SELECT id, matricula, nome, regional, avatar, criado_em FROM usuarios ORDER BY nome ASC"
+    "SELECT id, matricula, nome, regional, cluster, avatar, criado_em FROM usuarios ORDER BY nome ASC"
   );
   return NextResponse.json(rows);
 }
