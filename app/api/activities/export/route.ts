@@ -48,6 +48,7 @@ export async function GET() {
       "Data de criação": formatDateTime(r.data_criacao as string | null),
       "Data de conclusão": formatDateTime(r.concluded_at as string | null),
       "Nome do armário": r.nome_armario,
+      Atividade: r.atividade,
       "Descrição da atividade": r.descricao,
       "Tempo em execução": formatSeconds(Math.max(0, segundos)),
       Status: statusLabel,

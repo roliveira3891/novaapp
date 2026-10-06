@@ -64,6 +64,7 @@ export default function HistoryTable({
               <th className="py-2 pr-4 font-medium">Data de criação</th>
               <th className="py-2 pr-4 font-medium">Data de conclusão</th>
               <th className="py-2 pr-4 font-medium">Nome do armário</th>
+              <th className="py-2 pr-4 font-medium">Atividade</th>
               <th className="py-2 pr-4 font-medium">Descrição da atividade</th>
               <th className="py-2 pr-4 font-medium">Tempo em execução</th>
               <th className="py-2 pr-4 font-medium">Status</th>
@@ -97,6 +98,7 @@ export default function HistoryTable({
                   <td className="py-2.5 pr-4 text-gray-500">{formatDateTime(a.concluded_at)}</td>
                   <td className="py-2.5 pr-4 text-gray-700">{a.nome_armario}</td>
                   <td className="py-2.5 pr-4 text-gray-700">{a.atividade}</td>
+                  <td className="py-2.5 pr-4 text-gray-700">{a.descricao || "—"}</td>
                   <td className="py-2.5 pr-4 text-gray-700 font-mono">
                     <Timer
                       startedAt={a.started_at}
@@ -126,7 +128,7 @@ export default function HistoryTable({
             })}
             {activities.length === 0 && (
               <tr>
-                <td colSpan={9} className="text-center text-gray-400 py-8 text-xs">
+                <td colSpan={10} className="text-center text-gray-400 py-8 text-xs">
                   Nenhuma atividade registrada
                 </td>
               </tr>
